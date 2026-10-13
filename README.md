@@ -9,7 +9,7 @@ Abra [Releases](https://github.com/hardboostapp/calls/releases) e escolha o apli
 - **Bubble**: tags `bubble-v2.4.0`, `bubble-v2.4.1` etc. Windows: `bubble-windows-VERSAO.exe`. Android: `bubble-android-VERSAO.apk`.
 - **Os cria da quebrada**: tags `cria-v1.0.0`, `cria-v1.0.1` etc. Windows: `cria-windows-VERSAO.exe`. Android: `cria-android-VERSAO.apk`.
 
-No Windows, instale uma vez pelo novo instalador; ele mantém a sala e as preferências. Versões portáteis anteriores precisam desta primeira instalação. No Android, instale o APK por cima do anterior. Cada aplicativo exige seu convite privado e a rede Tailscale correspondente para a chamada.
+No Windows, instale uma vez pelo novo instalador; ele mantém a sala e as preferências. Versões portáteis anteriores precisam desta primeira instalação. No Android, instale o APK por cima do anterior. Cada aplicativo exige seu convite privado. A chamada pode funcionar diretamente pela internet; se a rede impedir essa conexão, conecte os participantes à rede Tailscale correspondente.
 
 ## Como as atualizações aparecem
 
