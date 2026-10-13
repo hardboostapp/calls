@@ -3,6 +3,7 @@
 !README.md
 !release-policy.cjs
 !test-release-policy.cjs
+!test-updates.cjs
 !atualizacoes.cjs
 !atualizacoes-ui.js
 !AppUpdates.java
