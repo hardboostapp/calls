@@ -14,11 +14,12 @@ import java.util.*;
 import java.util.concurrent.*;
 
 final class AppUpdates {
- static final String REPO="hardboostapp/calls",PRODUCT="PRODUCT",CURRENT="VERSION";
+ static final String REPO="hardboostapp/calls",PRODUCT="PRODUCT";
+ final String current;
  final Activity activity;final Handler ui=new Handler(Looper.getMainLooper());
  final ExecutorService queue=Executors.newSingleThreadExecutor();
  JSONObject candidate;boolean busy;File ready;long lastCheck;String offered="";
- AppUpdates(Activity a){activity=a;}
+ AppUpdates(Activity a){activity=a;String v;try{v=a.getPackageManager().getPackageInfo(a.getPackageName(),0).versionName;}catch(Exception e){v="0.0.0";}current=v;}
  boolean active(){return !activity.isFinishing()&&!activity.isDestroyed();}
  void post(Runnable r){ui.post(()->{if(active())r.run();});}
  static int compare(String a,String b){String[] x=a.split("\\."),y=b.split("\\.");for(int n=0;n<3;n++){int d=Integer.compare(Integer.parseInt(x[n]),Integer.parseInt(y[n]));if(d!=0)return d;}return 0;}
@@ -29,12 +30,12 @@ final class AppUpdates {
   for(int n=0;n<6;n++){if(!allowed(u))throw new IOException("Endereço de atualização inválido.");HttpURLConnection c=(HttpURLConnection)u.openConnection();c.setConnectTimeout(15000);c.setReadTimeout(20000);c.setInstanceFollowRedirects(false);c.setRequestProperty("User-Agent","calls-android-updater");c.setRequestProperty("Accept",u.getHost().equals("api.github.com")?"application/vnd.github+json":"application/octet-stream");int code=c.getResponseCode();if(code==301||code==302||code==303||code==307||code==308){String redirect=c.getHeaderField("Location");c.disconnect();u=new URL(u,redirect);continue;}if(code!=200){c.disconnect();throw new IOException(code==403||code==429?"O GitHub limitou a consulta. Tente mais tarde.":"Não consegui acessar a atualização. Tente novamente.");}return c;}throw new IOException("Redirecionamento inválido.");
  }
  static byte[] read(String url,int max)throws Exception {HttpURLConnection c=open(url);try(InputStream in=c.getInputStream();ByteArrayOutputStream out=new ByteArrayOutputStream()){byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1){if(out.size()+n>max)throw new IOException("Resposta de atualização inválida.");out.write(b,0,n);}return out.toByteArray();}finally{c.disconnect();}}
- void check(boolean manual){if(!active()||busy||(!manual&&System.currentTimeMillis()-lastCheck<600000))return;busy=true;lastCheck=System.currentTimeMillis();queue.execute(()->{try{
-  JSONArray list=new JSONArray(new String(read("https://api.github.com/repos/"+REPO+"/releases?per_page=100",4*1024*1024),java.nio.charset.StandardCharsets.UTF_8));JSONObject found=null;String best=CURRENT;
+ void check(boolean manual){if(!active()||busy)return;if(!manual&&System.currentTimeMillis()-lastCheck<600000){if(candidate!=null&&activity.hasWindowFocus()&&!offered.equals(candidate.optString("version")))offer();return;}busy=true;lastCheck=System.currentTimeMillis();queue.execute(()->{try{
+  JSONArray list=new JSONArray(new String(read("https://api.github.com/repos/"+REPO+"/releases?per_page=100",4*1024*1024),java.nio.charset.StandardCharsets.UTF_8));JSONObject found=null;String best=current;
   for(int i=0;i<list.length();i++){JSONObject r=list.getJSONObject(i);String tag=r.optString("tag_name"),prefix=PRODUCT+"-v";if(r.optBoolean("draft")||r.optBoolean("prerelease")||!tag.startsWith(prefix))continue;String v=tag.substring(prefix.length());if(!version(v)||compare(v,best)<=0)continue;JSONArray assets=r.optJSONArray("assets");if(assets==null)continue;String name=PRODUCT+"-android-"+v+".apk",url="https://github.com/"+REPO+"/releases/download/"+tag+"/"+name;
    for(int j=0;j<assets.length();j++){JSONObject a=assets.getJSONObject(j);if(name.equals(a.optString("name"))&&"uploaded".equals(a.optString("state"))&&url.equals(a.optString("browser_download_url"))&&a.optLong("size")>0&&a.optLong("size")<100*1024*1024&&a.optString("digest").matches("sha256:[a-fA-F0-9]{64}")){found=new JSONObject().put("version",v).put("url",url).put("size",a.getLong("size")).put("hash",a.getString("digest").substring(7));best=v;}}
   }
-  candidate=found;post(()->{if(candidate!=null&&(manual||activity.hasWindowFocus())&&(manual||!offered.equals(candidate.optString("version"))))offer();else if(manual&&candidate==null)new AlertDialog.Builder(activity).setTitle("Atualizações").setMessage("Você está na versão mais recente · "+CURRENT).setPositiveButton("Pronto",null).show();});
+  candidate=found;post(()->{if(candidate!=null&&(manual||activity.hasWindowFocus())&&(manual||!offered.equals(candidate.optString("version"))))offer();else if(manual&&candidate==null)new AlertDialog.Builder(activity).setTitle("Atualizações").setMessage("Você está na versão mais recente · "+current).setPositiveButton("Pronto",null).show();});
  }catch(Exception e){if(manual)post(()->new AlertDialog.Builder(activity).setTitle("Atualizações").setMessage(e.getMessage()).setPositiveButton("Entendi",null).show());}finally{busy=false;}});}
  void offer(){offered=candidate.optString("version");new AlertDialog.Builder(activity).setTitle("Atualização disponível").setMessage("Versão "+offered+". Baixe e instale por cima desta versão. A sala e as preferências ficam salvas.").setNegativeButton("Depois",null).setPositiveButton("Baixar",(d,w)->download()).show();}
  void download(){if(busy||candidate==null)return;busy=true;JSONObject selected=candidate;
