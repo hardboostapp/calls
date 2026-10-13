@@ -1,0 +1,13 @@
+*
+!.gitignore
+!README.md
+!release-policy.cjs
+!test-release-policy.cjs
+!atualizacoes.cjs
+!atualizacoes-ui.js
+!AppUpdates.java
+!UpdateProvider.java
+!validar-release.cjs
+!.github/
+!.github/workflows/
+!.github/workflows/validar-release.yml

@@ -1,0 +1,21 @@
+name: Validar release
+on:
+  release:
+    types: [published]
+permissions:
+  contents: read
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Testar separação dos canais
+        run: node --test test-release-policy.cjs
+      - name: Conferir os arquivos públicos
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: node validar-release.cjs "$RELEASE_TAG"
