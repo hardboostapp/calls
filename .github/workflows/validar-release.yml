@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: '22'
       - name: Testar separação dos canais
-        run: node --test test-release-policy.cjs test-updates.cjs
+        run: node --test test-release-policy.cjs test-updates.cjs test-release-assets.cjs
       - name: Conferir os arquivos públicos
         env:
           GH_TOKEN: ${{ github.token }}
