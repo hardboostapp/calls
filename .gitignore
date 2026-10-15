@@ -4,6 +4,7 @@
 !release-policy.cjs
 !test-release-policy.cjs
 !test-updates.cjs
+!test-release-assets.cjs
 !atualizacoes.cjs
 !atualizacoes-ui.js
 !AppUpdates.java

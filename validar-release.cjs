@@ -5,5 +5,9 @@ const [product,v]=tag.split('-v');if(!version(v))throw Error('Versão inválida.
 const r=JSON.parse(execFileSync('gh',['release','view',tag,'--repo','hardboostapp/calls','--json','assets,isDraft,isPrerelease'],{encoding:'utf8'}));
 const allowed=new Set([`${product}-windows-${v}.exe`,`${product}-windows-${v}.exe.blockmap`,`${product}-android-${v}.apk`,'latest.yml']);
 for(const a of r.assets)if(!allowed.has(a.name))throw Error('Asset fora da lista pública permitida: '+a.name);
-for(const name of [`${product}-windows-${v}.exe`,`${product}-android-${v}.apk`,'latest.yml'])if(!r.assets.some(a=>a.name===name&&a.size>0))throw Error('Arquivo obrigatório ausente: '+name);
+const has=name=>r.assets.some(a=>a.name===name&&a.size>0);
+const windows=has(`${product}-windows-${v}.exe`),android=has(`${product}-android-${v}.apk`);
+if(!windows&&!android)throw Error('Nenhum instalador publicado.');
+if(windows)for(const name of ['latest.yml',`${product}-windows-${v}.exe.blockmap`])if(!has(name))throw Error('Arquivo obrigatório ausente: '+name);
+if(!windows&&r.assets.some(a=>a.name==='latest.yml'||a.name.endsWith('.blockmap')))throw Error('Manifesto Windows sem instalador.');
 console.log('Arquivos públicos e canais corretos para '+tag+'.');

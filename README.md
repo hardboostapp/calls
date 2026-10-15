@@ -20,9 +20,9 @@ Windows verifica o checksum SHA-512 do instalador pela biblioteca `electron-upda
 ## Publicar uma versão nova
 
 1. Atualize a versão do aplicativo; no Android, aumente também `versionCode`. Mantenha a chave de assinatura do APK guardada fora deste repositório.
-2. Compile e teste Windows e Android do aplicativo.
+2. Compile e teste as plataformas que serão atualizadas. Uma release pode atualizar apenas Windows ou apenas Android; a outra plataforma continua selecionando sua última versão compatível.
 3. Crie uma **Draft release** com tag `bubble-vX.Y.Z` ou `cria-vX.Y.Z`.
-4. Anexe apenas os arquivos do aplicativo: `PRODUTO-windows-X.Y.Z.exe`, o respectivo `.blockmap`, `latest.yml` gerado pelo Electron Builder e `PRODUTO-android-X.Y.Z.apk`.
+4. Anexe apenas os arquivos das plataformas atualizadas: para Windows, `PRODUTO-windows-X.Y.Z.exe`, o respectivo `.blockmap` e `latest.yml` gerado pelo Electron Builder; para Android, `PRODUTO-android-X.Y.Z.apk`. Não renomeie um APK antigo como se fosse a nova versão.
 5. Publique a release quando todos os arquivos estiverem prontos. Não marque versões de produção como pré-release.
 
 O `latest.yml` deve estar na mesma release do instalador. Cada aplicativo seleciona sua própria tag, mesmo que a release mais recente do repositório seja do outro aplicativo. Versões iguais, inferiores, drafts e pré-releases são ignoradas.
